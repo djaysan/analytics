@@ -1,5 +1,5 @@
-# we can not use the pre-built tar because the distribution is
-# platform specific, it makes sense to build it in the docker
+# TrackTrendy Analytics - Based on Plausible Analytics
+# This is a white-labeled version of Plausible Analytics
 
 #### Builder
 FROM hexpm/elixir:1.17.3-erlang-27.2.1-alpine-3.20.5 AS buildcontainer
@@ -55,7 +55,7 @@ RUN mix release plausible
 
 # Main Docker Image
 FROM alpine:3.20.5
-LABEL maintainer="plausible.io <hello@plausible.io>"
+LABEL maintainer="TrackTrendy <hello@tracktrendy.com>"
 
 ARG BUILD_METADATA={}
 ENV BUILD_METADATA=$BUILD_METADATA

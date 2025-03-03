@@ -1,0 +1,44 @@
+version: '3.3'
+services:
+  analytics:
+    build:
+      context: .
+      dockerfile: Dockerfile.tracktrendy
+    image: tracktrendy-analytics:latest
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - BASE_URL=https://analytics.tracktrendy.com
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-$(openssl rand -base64 64 | tr -d '\n')}
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/plausible
+      - CLICKHOUSE_DATABASE_URL=http://clickhouse:8123/plausible
+    depends_on:
+      - db
+      - clickhouse
+    command: sh -c "sleep 10 && /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
+    volumes:
+      - plausible-data:/var/lib/plausible
+
+  db:
+    image: postgres:14-alpine
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.3.7.5-alpine
+    restart: always
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+volumes:
+  plausible-data:
+  postgres-data:
+  clickhouse-data:
